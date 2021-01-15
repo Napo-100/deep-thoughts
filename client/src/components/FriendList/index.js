@@ -1,5 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+// import Profile from "../../pages/Profile"
+// import { useState } from "react";
+// import { useEffect } from "react";
 
 const FriendList = ({ friendCount, username, friends }) => {
   if (!friends || !friends.length) {
