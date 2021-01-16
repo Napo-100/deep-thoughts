@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router-dom";
-import ThoughtForm from '../components/ThoughtForm';
+import ThoughtForm from "../components/ThoughtForm";
 
 import ThoughtList from "../components/ThoughtList";
 import FriendList from "../components/FriendList";
@@ -8,11 +8,10 @@ import { ADD_FRIEND } from "../utils/mutations";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { QUERY_USER, QUERY_ME } from "../utils/queries";
 import Auth from "../utils/auth";
-import { useState } from "react";
 
 const Profile = () => {
-  const [areFriends, friendAdded] = useState(false);
-  
+  const [areFriends, setAreFriends] = useState(false);
+
   const [addFriend] = useMutation(ADD_FRIEND);
   const { username: userParam } = useParams();
 
@@ -20,12 +19,18 @@ const Profile = () => {
     variables: { username: userParam },
   });
 
+  const resetFriend = () => {
+    setAreFriends(false);
+  };
+
   const user = data?.me || data?.user || {};
+  useEffect(resetFriend, [user.username]);
+
   // redirect to personal profile page if username is the logged-in user's
   if (Auth.loggedIn() && Auth.getProfile().data.username === userParam) {
     return <Redirect to="/profile" />;
   }
- 
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -45,12 +50,8 @@ const Profile = () => {
     } catch (e) {
       console.error(e);
     }
-    friendAdded(true);
+    setAreFriends(true);
   };
-
-  const resetFriend =() => {
-    friendAdded(false)
-  }
 
   return (
     <div>
@@ -77,12 +78,12 @@ const Profile = () => {
             title={`${user.username}'s thoughts...`}
           />
         </div>
-        <div className="col-12 col-lg-3 mb-3" onClick={resetFriend}>
+        <div className="col-12 col-lg-3 mb-3">
           <FriendList
-            username={user.username} 
-            friendCount={user.friendCount} 
-            friends={user.friends} 
-            />
+            username={user.username}
+            friendCount={user.friendCount}
+            friends={user.friends}
+          />
         </div>
       </div>
       <div className="mb-3">{!userParam && <ThoughtForm />}</div>
